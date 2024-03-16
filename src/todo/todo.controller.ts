@@ -10,10 +10,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
-import { CreateTodoDto } from 'src/DTO/createTodo.dto';
+import { CreateTodoDto } from '../DTO/createTodo.dto';
 import { ToDoStatus } from 'src/Entity/todo.entity';
-import { ToDoStatusValidationPipe } from 'src/pipes/ToDoStatusValidation.pipe';
+import { ToDoStatusValidationPipe } from '../pipes/ToDoStatusValidation.pipe';
 import { AuthGuard } from '@nestjs/passport';
+import { UserEntity } from '../Entity/user.entity';
+import { User } from '../auth/user.decorator';
 
 @Controller('todo')
 @UseGuards(AuthGuard())
@@ -21,25 +23,29 @@ export class TodoController {
   constructor(private readonly toDoService: TodoService) {}
 
   @Get()
-  getAllTodos() {
-    return this.toDoService.getAllToDos();
+  getAllTodos(@User() user: UserEntity) {
+    return this.toDoService.getAllToDos(user);
   }
 
   @Post()
-  createNewToDo(@Body(ValidationPipe) data: CreateTodoDto) {
-    return this.toDoService.createToDo(data);
+  createNewToDo(
+    @Body(ValidationPipe) data: CreateTodoDto,
+    @User() user: UserEntity,
+  ) {
+    return this.toDoService.createToDo(data, user);
   }
 
   @Patch(':id')
   updateToDo(
     @Body('status', ToDoStatusValidationPipe) status: ToDoStatus,
     @Param('id') id: number,
+    @User() user: UserEntity,
   ) {
-    return this.toDoService.updateToDo(id, status);
+    return this.toDoService.updateToDo(id, status, user);
   }
 
   @Delete(':id')
-  deleteToDo(@Param('id') id: number) {
-    return this.toDoService.deleteToDo(id);
+  deleteToDo(@Param('id') id: number, @User() user: UserEntity) {
+    return this.toDoService.deleteToDo(id, user);
   }
 }
