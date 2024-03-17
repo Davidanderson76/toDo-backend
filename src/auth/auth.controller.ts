@@ -13,7 +13,7 @@ export class AuthController {
   }
 
   @Post('login')
-  signIn(@Body(ValidationPipe) loginDTO: UserLoginDto) {
+  signin(@Body(ValidationPipe) loginDTO: UserLoginDto) {
     return this.authService.loginUser(loginDTO);
   }
 }

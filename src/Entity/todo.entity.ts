@@ -23,6 +23,6 @@ export class TodoEntity {
 
 export enum ToDoStatus {
   OPEN = 'OPEN',
-  IN_PROGRESS = 'IN PROGRESS',
-  COMPLETED = 'COMPLETED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'DONE',
 }

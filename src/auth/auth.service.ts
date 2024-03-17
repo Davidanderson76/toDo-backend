@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -23,18 +24,26 @@ export class AuthService {
     const hashed = await bcrypt.hash(password, 12);
     const salt = await bcrypt.getSalt(hashed);
 
-    const user: UserEntity = new UserEntity();
-    user.userName = userName;
-    user.password = hashed;
-    user.salt = salt;
+    const foundUser = await this.repo.findOne({
+      where: { userName },
+    } as FindOneOptions<UserEntity>);
 
-    this.repo.create(user);
-    try {
-      return await this.repo.save(user);
-    } catch (err) {
-      throw new InternalServerErrorException(
-        'Something went wrong, user was not created...',
-      );
+    if (foundUser) {
+      throw new BadRequestException('Username already taken');
+    } else {
+      const user: UserEntity = new UserEntity();
+      user.userName = userName;
+      user.password = hashed;
+      user.salt = salt;
+
+      this.repo.create(user);
+      try {
+        return await this.repo.save(user);
+      } catch (err) {
+        throw new InternalServerErrorException(
+          'Something went wrong, user was not created...',
+        );
+      }
     }
   }
 
